@@ -4,7 +4,7 @@ import { createRequire } from "module"
 import type { FastifyPluginAsync } from "fastify"
 
 const require = createRequire(import.meta.url)
-const { PrismaClient } = require("../generated/client")
+const { PrismaClient } = require("@prisma/client")
 
 const prismaPlugin: FastifyPluginAsync = fp(async (server) => {
   const connectionString = process.env.DATABASE_URL!
