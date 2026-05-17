@@ -7,6 +7,7 @@
     "./generated/client/index.js": "./generated/client/index.js"
   },
   "scripts": {
+    "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
