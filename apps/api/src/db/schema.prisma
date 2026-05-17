@@ -1,0 +1,254 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/client"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+ //  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ──────────────────────────────────────────────────────────────────
+
+enum PlanTier {
+  STARTER
+  PRO
+  ELITE
+}
+
+enum MemberStatus {
+  ACTIVE
+  FROZEN
+  EXPIRED
+  CANCELLED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  ANNUAL
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  ATTENDED
+  NO_SHOW
+}
+
+enum CheckInMethod {
+  QR
+  PIN
+  MANUAL
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum StaffRole {
+  OWNER
+  ADMIN
+  TRAINER
+  RECEPTIONIST
+}
+
+// ─── TENANT (one gym = one tenant) ──────────────────────────────────────────
+
+model Tenant {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  planTier    PlanTier @default(STARTER)
+  logoUrl     String?
+  address     String?
+  phone       String?
+  email       String?
+  currency    String   @default("GHS")
+  timezone    String   @default("Africa/Accra")
+  settings    Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // relations
+  staff            Staff[]
+  members          Member[]
+  membershipPlans  MembershipPlan[]
+  classSessions    ClassSession[]
+  checkIns         CheckIn[]
+  payments         Payment[]
+
+  @@map("tenants")
+}
+
+// ─── STAFF ───────────────────────────────────────────────────────────────────
+
+model Staff {
+  id           String    @id @default(cuid())
+  tenantId     String
+  name         String
+  email        String
+  passwordHash String
+  role         StaffRole @default(RECEPTIONIST)
+  phone        String?
+  avatarUrl    String?
+  isActive     Boolean   @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // relations
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  classSessions ClassSession[]
+
+  @@unique([tenantId, email])
+  @@map("staff")
+}
+
+// ─── MEMBERSHIP PLANS ────────────────────────────────────────────────────────
+
+model MembershipPlan {
+  id                 String       @id @default(cuid())
+  tenantId           String
+  name               String
+  description        String?
+  price              Decimal      @db.Decimal(10, 2)
+  billingCycle       BillingCycle @default(MONTHLY)
+  maxClassesPerWeek  Int?
+  accessHoursStart   Int          @default(0)
+  accessHoursEnd     Int          @default(23)
+  features           String[]
+  isActive           Boolean      @default(true)
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  // relations
+  tenant  Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  members Member[]
+
+  @@map("membership_plans")
+}
+
+// ─── MEMBERS ─────────────────────────────────────────────────────────────────
+
+model Member {
+  id               String       @id @default(cuid())
+  tenantId         String
+  membershipPlanId String?
+  name             String
+  email            String
+  phone            String?
+  photoUrl         String?
+  qrCode           String?      @unique
+  pin              String?
+  status           MemberStatus @default(ACTIVE)
+  joinedAt         DateTime     @default(now())
+  expiresAt        DateTime?
+  frozenAt         DateTime?
+  frozenDays       Int          @default(0)
+  emergencyContact String?
+  notes            String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // relations
+  tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  plan           MembershipPlan? @relation(fields: [membershipPlanId], references: [id])
+  bookings       Booking[]
+  checkIns       CheckIn[]
+  payments       Payment[]
+
+  @@unique([tenantId, email])
+  @@map("members")
+}
+
+// ─── CLASS SESSIONS ───────────────────────────────────────────────────────────
+
+model ClassSession {
+  id          String   @id @default(cuid())
+  tenantId    String
+  trainerId   String?
+  name        String
+  description String?
+  capacity    Int      @default(20)
+  startTime   DateTime
+  endTime     DateTime
+  location    String?
+  isRecurring Boolean  @default(false)
+  recurrenceRule String?
+  isCancelled Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // relations
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  trainer  Staff?    @relation(fields: [trainerId], references: [id])
+  bookings Booking[]
+
+  @@map("class_sessions")
+}
+
+// ─── BOOKINGS ─────────────────────────────────────────────────────────────────
+
+model Booking {
+  id             String        @id @default(cuid())
+  memberId       String
+  classSessionId String
+  status         BookingStatus @default(CONFIRMED)
+  bookedAt       DateTime      @default(now())
+  cancelledAt    DateTime?
+  attendedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // relations
+  member       Member       @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  classSession ClassSession @relation(fields: [classSessionId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, classSessionId])
+  @@map("bookings")
+}
+
+// ─── CHECK INS ────────────────────────────────────────────────────────────────
+
+model CheckIn {
+  id           String        @id @default(cuid())
+  memberId     String
+  tenantId     String
+  method       CheckInMethod @default(MANUAL)
+  checkedInAt  DateTime      @default(now())
+  note         String?
+
+  // relations
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("check_ins")
+}
+
+// ─── PAYMENTS ─────────────────────────────────────────────────────────────────
+
+model Payment {
+  id            String        @id @default(cuid())
+  memberId      String
+  tenantId      String
+  amount        Decimal       @db.Decimal(10, 2)
+  currency      String        @default("GHS")
+  status        PaymentStatus @default(PENDING)
+  gatewayRef    String?       @unique
+  gatewayData   Json?
+  description   String?
+  paidAt        DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // relations
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}

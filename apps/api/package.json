@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx --tsconfig tsconfig.json src/server.ts",
-    "build": "tsup src/server.ts --format esm",
+    "build": "prisma generate --schema src/db/schema.prisma && tsup src/server.ts --format esm",
     "start": "node dist/server.js",
     "lint": "tsc --noEmit"
   },
@@ -13,23 +13,23 @@
     "@fastify/helmet": "latest",
     "@fastify/jwt": "latest",
     "@fastify/rate-limit": "latest",
-    "@primefit/db": "workspace:*",
     "@prisma/adapter-pg": "latest",
-    "@prisma/client": "^7.8.0",
-    "bcryptjs": "^3.0.3",
+    "@prisma/client": "latest",
+    "bcryptjs": "latest",
     "dotenv": "latest",
     "fastify": "latest",
     "fastify-plugin": "latest",
-    "node-cron": "^4.2.1",
+    "node-cron": "latest",
     "pg": "latest",
     "pino-pretty": "latest",
     "zod": "latest"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^3.0.0",
+    "@types/bcryptjs": "latest",
     "@types/node": "latest",
-    "@types/node-cron": "^3.0.11",
+    "@types/node-cron": "latest",
     "@types/pg": "latest",
+    "prisma": "latest",
     "tsup": "latest",
     "tsx": "latest",
     "typescript": "latest"
