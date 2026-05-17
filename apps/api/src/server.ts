@@ -33,28 +33,28 @@ const start = async () => {
   })
 
   // ── Global error handler ──────────────────────────────
-  server.setErrorHandler((error, request, reply) => {
-    server.log.error(error)
+server.setErrorHandler((error: any, request, reply) => {
+  server.log.error(error)
 
-    if (error.validation) {
-      return reply.status(400).send({
-        error: "Validation error",
-        details: error.validation,
-      })
-    }
-
-    if (error.statusCode === 429) {
-      return reply.status(429).send({
-        error: "Too many requests. Please try again later.",
-      })
-    }
-
-    return reply.status(error.statusCode ?? 500).send({
-      error: process.env.NODE_ENV === "production"
-        ? "Internal server error"
-        : error.message,
+  if (error.validation) {
+    return reply.status(400).send({
+      error: "Validation error",
+      details: error.validation,
     })
+  }
+
+  if (error.statusCode === 429) {
+    return reply.status(429).send({
+      error: "Too many requests. Please try again later.",
+    })
+  }
+
+  return reply.status(error.statusCode ?? 500).send({
+    error: process.env.NODE_ENV === "production"
+      ? "Internal server error"
+      : error.message,
   })
+})
 
   // ── Plugins ───────────────────────────────────────────
   await server.register(helmet, {
