@@ -79,8 +79,8 @@ export default function StaffPage() {
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+          <DialogTrigger>
+  <Button className="bg-orange-500 hover:bg-orange-600 text-white">
               <UserPlus className="h-4 w-4 mr-2" />
               Add Staff
             </Button>

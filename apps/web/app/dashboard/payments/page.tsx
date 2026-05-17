@@ -77,8 +77,8 @@ export default function PaymentsPage() {
             setForm({ memberId: "", amount: "", description: "" })
           }
         }}>
-          <DialogTrigger asChild>
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+          <DialogTrigger>
+  <Button className="bg-orange-500 hover:bg-orange-600 text-white">
               <Plus className="h-4 w-4 mr-2" />
               New Payment
             </Button>

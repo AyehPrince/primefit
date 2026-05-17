@@ -92,8 +92,8 @@ export default function PlansPage() {
           <p className="text-slate-500 mt-1">Manage your gym's subscription plans</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+          <DialogTrigger>
+  <Button className="bg-orange-500 hover:bg-orange-600 text-white">
               <Plus className="h-4 w-4 mr-2" />
               New Plan
             </Button>
