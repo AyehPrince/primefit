@@ -135,7 +135,7 @@ export default function PlansPage() {
                   <Label>Billing Cycle</Label>
                   <Select
                     value={form.billingCycle}
-                    onValueChange={(v) => setForm({ ...form, billingCycle: v })}
+                    onValueChange={(v) => setForm({ ...form, billingCycle: v ?? "MONTHLY" })}
                   >
                     <SelectTrigger>
                       <SelectValue />
