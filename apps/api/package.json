@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx --tsconfig tsconfig.json src/server.ts",
-    "build": "prisma generate --schema src/db/schema.prisma && tsup src/server.ts --format esm",
-    "start": "node dist/server.js",
+    "build": "prisma generate && tsup src/server.ts --format cjs",
+    "start": "node dist/server.cjs",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
