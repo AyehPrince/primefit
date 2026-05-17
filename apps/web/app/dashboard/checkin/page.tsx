@@ -17,7 +17,7 @@ import { LogIn, CheckCircle, XCircle, Search } from "lucide-react"
 export default function CheckInPage() {
   const queryClient = useQueryClient()
   const [identifier, setIdentifier] = useState("")
-  const [method, setMethod] = useState("QR")
+  const [method, setMethod] = useState<string>("QR")
   const [lastCheckIn, setLastCheckIn] = useState<any>(null)
 
   const { data: checkIns, isLoading } = useQuery({
@@ -66,7 +66,7 @@ export default function CheckInPage() {
             <form onSubmit={handleCheckIn} className="space-y-4">
               <div className="space-y-2">
                 <Label>Method</Label>
-                <Select value={method} onValueChange={setMethod}>
+                <Select value={method} onValueChange={(value) => setMethod(value ?? "QR")}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
