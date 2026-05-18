@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dumbbell, Loader2 } from "lucide-react"
+import Link from "next/link"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -107,6 +108,12 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
+            <p className="text-center text-slate-400 text-sm mt-4">
+  New gym?{" "}
+  <Link href="/register" className="text-orange-400 hover:text-orange-300">
+    Register here
+  </Link>
+</p>
           </CardContent>
         </Card>
       </div>
