@@ -54,7 +54,12 @@ enum StaffRole {
   TRAINER
   RECEPTIONIST
 }
-
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
 // ─── TENANT (one gym = one tenant) ──────────────────────────────────────────
 
 model Tenant {
@@ -79,10 +84,26 @@ model Tenant {
   classSessions    ClassSession[]
   checkIns         CheckIn[]
   payments         Payment[]
+  subscription     Subscription?
 
   @@map("tenants")
 }
 
+model Subscription {
+  id         String             @id @default(cuid())
+  tenantId   String             @unique
+  planName   String             @default("STARTER")
+  status     SubscriptionStatus @default(TRIAL)
+  startsAt   DateTime           @default(now())
+  expiresAt  DateTime
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  // relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
+}
 // ─── STAFF ───────────────────────────────────────────────────────────────────
 
 model Staff {

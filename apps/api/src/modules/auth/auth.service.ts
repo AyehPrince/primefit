@@ -26,7 +26,16 @@ export class AuthService {
           slug,
         },
       })
-
+    await tx.subscription.create({
+  data: {
+    tenantId: tenant.id,
+    planName: "STARTER",
+    status: "TRIAL",
+    expiresAt: new Date(
+      Date.now() + 14 * 24 * 60 * 60 * 1000
+    ),
+  },
+})
       const owner = await tx.staff.create({
         data: {
           tenantId: tenant.id,
