@@ -11,7 +11,7 @@ export class StaffService {
       where: {
         tenantId_email: {
           tenantId,
-          email: input.email,
+          email: input.email.trim().toLowerCase(),
         },
       },
     })
@@ -21,7 +21,7 @@ export class StaffService {
       data: {
         tenantId,
         name: input.name,
-        email: input.email,
+        email: input.email.trim().toLowerCase(),
         passwordHash: await hashPassword(input.password),
         role: input.role,
         phone: input.phone,

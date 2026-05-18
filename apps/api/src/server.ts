@@ -5,6 +5,7 @@ import helmet from "@fastify/helmet"
 import jwt from "@fastify/jwt"
 import rateLimit from "@fastify/rate-limit"
 import cron from "node-cron"
+import { Prisma } from "@prisma/client"
 import prismaPlugin from "./plugins/prisma.js"
 import { authRoutes } from "./modules/auth/auth.routes.js"
 import { membersRoutes } from "./modules/members/members.routes.js"
@@ -32,10 +33,11 @@ const start = async () => {
     },
   })
 
-  // ── Global error handler ──────────────────────────────
+// ── Global error handler ──────────────────────────────
 server.setErrorHandler((error: any, request, reply) => {
   server.log.error(error)
 
+  // Validation errors
   if (error.validation) {
     return reply.status(400).send({
       error: "Validation error",
@@ -43,16 +45,40 @@ server.setErrorHandler((error: any, request, reply) => {
     })
   }
 
+  // Rate limit errors
   if (error.statusCode === 429) {
     return reply.status(429).send({
       error: "Too many requests. Please try again later.",
     })
   }
 
+  // Prisma errors
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    switch (error.code) {
+      case "P2002":
+        return reply.status(409).send({
+          error: "Duplicate record already exists",
+          details: error.meta,
+        })
+
+      case "P2025":
+        return reply.status(404).send({
+          error: "Record not found",
+        })
+
+      default:
+        return reply.status(400).send({
+          error: error.message,
+        })
+    }
+  }
+
+  // Default server error
   return reply.status(error.statusCode ?? 500).send({
-    error: process.env.NODE_ENV === "production"
-      ? "Internal server error"
-      : error.message,
+    error:
+      process.env.NODE_ENV === "production"
+        ? "Internal server error"
+        : error.message,
   })
 })
 
