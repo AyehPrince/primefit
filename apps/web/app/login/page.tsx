@@ -19,7 +19,6 @@ export default function LoginPage() {
   const [form, setForm] = useState({
     email: "",
     password: "",
-    tenantId: "",
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,17 +61,6 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="tenantId" className="text-slate-300">Gym ID</Label>
-                <Input
-                  id="tenantId"
-                  placeholder="Your gym ID"
-                  value={form.tenantId}
-                  onChange={(e) => setForm({ ...form, tenantId: e.target.value })}
-                  className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="email" className="text-slate-300">Email</Label>
                 <Input
                   id="email"
@@ -108,12 +96,13 @@ export default function LoginPage() {
                 )}
               </Button>
             </form>
+
             <p className="text-center text-slate-400 text-sm mt-4">
-  New gym?{" "}
-  <Link href="/register" className="text-orange-400 hover:text-orange-300">
-    Register here
-  </Link>
-</p>
+              New gym?{" "}
+              <Link href="/register" className="text-orange-400 hover:text-orange-300">
+                Register here
+              </Link>
+            </p>
           </CardContent>
         </Card>
       </div>

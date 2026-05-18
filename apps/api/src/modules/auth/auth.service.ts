@@ -54,37 +54,33 @@ export class AuthService {
     }
   }
 
-  async login(input: LoginInput) {
-    const staff = await this.prisma.staff.findUnique({
-      where: {
-        tenantId_email: {
-          tenantId: input.tenantId,
-          email: input.email,
-        },
-      },
-      include: { tenant: true },
-    })
+async login(input: LoginInput) {
+  // Find staff by email across all tenants
+  const staff = await this.prisma.staff.findFirst({
+    where: { email: input.email },
+    include: { tenant: true },
+  })
 
-    if (!staff) throw new UnauthorizedError("Invalid credentials")
-    if (!staff.isActive) throw new UnauthorizedError("Account is disabled")
+  if (!staff) throw new UnauthorizedError("Invalid credentials")
+  if (!staff.isActive) throw new UnauthorizedError("Account is disabled")
 
-    const valid = await verifyPassword(input.password, staff.passwordHash)
-    if (!valid) throw new UnauthorizedError("Invalid credentials")
+  const valid = await verifyPassword(input.password, staff.passwordHash)
+  if (!valid) throw new UnauthorizedError("Invalid credentials")
 
-    await this.prisma.staff.update({
-      where: { id: staff.id },
-      data: { lastLoginAt: new Date() },
-    })
+  await this.prisma.staff.update({
+    where: { id: staff.id },
+    data: { lastLoginAt: new Date() },
+  })
 
-    return {
-      id: staff.id,
-      name: staff.name,
-      email: staff.email,
-      role: staff.role,
-      tenantId: staff.tenantId,
-      gymName: staff.tenant.name,
-    }
+  return {
+    id: staff.id,
+    name: staff.name,
+    email: staff.email,
+    role: staff.role,
+    tenantId: staff.tenantId,
+    gymName: staff.tenant.name,
   }
+}
 
   async getMe(staffId: string) {
     const staff = await this.prisma.staff.findUnique({
